@@ -20,6 +20,7 @@ struct SS {
   int count;
 };
 vector<SS> sum;
+vector<string> oppoMap;
 vector<string> allFile;     // 每个单词在每个文件里的数量
 map<string, int> fileStore; //储存文件编号
 map<string, int> wordStore; //确定单词是否被读以及赋予编号
@@ -29,6 +30,7 @@ void scan_file(const char *fileName) {
   fileCount++;
   sumInAFile.clear();
   wordStore.clear();
+  oppoMap.clear();
   wordCount = 0;
   string _filename(fileName);
   fileStore[_filename] = fileCount;
@@ -37,11 +39,15 @@ void scan_file(const char *fileName) {
   infile.open(fileName);
   string S;
   while (infile >> S) {
-    if (!wordStore[S])
+    if (!wordStore[S]) {
       wordStore[S] = ++wordCount;
+      oppoMap.push_back(S);
+    }
     sumInAFile[wordStore[S]]++;
-    sum.push_back(SS{S, fileCount, sumInAFile[wordStore[S]]});
+    // sum.push_back(SS{S, fileCount, sumInAFile[wordStore[S]]});
   }
+  for (int i = 0; i < wordCount; i++)
+    sum.push_back(SS{oppoMap[i], fileCount, sumInAFile[wordStore[oppoMap[i]]]});
   infile.close();
 }
 
@@ -75,7 +81,7 @@ void printIndex() {
   wordCount = 0;
   outfile << fileCount << endl;
   for (int i = 0; i < allFile.size(); i++)
-    outfile << allFile[i] << " " << fileStore[allFile[i]] << endl;
+    outfile << allFile[i] << endl;
   sort(sum.begin(), sum.end(), cmp);
   for (int i = 0; i < sum.size(); i++) {
     if (!wordStore[sum[i].word]) {
@@ -86,16 +92,16 @@ void printIndex() {
   }
   outfile << wordCount << endl;
   for (int i = 1; i <= wordCount; i++)
-    outfile << sumInAFile[i] << " ";
-  outfile << " ";
+    outfile << sumInAFile[i] << endl;
+  // outfile << " ";
   wordStore.clear();
   for (int i = 0; i < sum.size(); i++) {
     if (!wordStore[sum[i].word]) {
       outfile << endl;
       wordStore[sum[i].word] = 1;
-      outfile << sum[i].word << " ";
+      outfile << sum[i].word << endl;
     }
-    outfile << sum[i].fileNum << " " << sum[i].count << " ";
+    outfile << sum[i].fileNum << endl << sum[i].count << endl;
   }
   outfile.close();
 }
@@ -103,8 +109,9 @@ void printIndex() {
 int main() {
   string path;
   cin >> path;
-  cout << path;
+  // cout << path;
   scan_dir(path.c_str());
+  // scan_file("/home/alisa/Documents/code/");
   cout << "done" << endl;
   cout << "Totle Time : " << (double)clock() / CLOCKS_PER_SEC << "s" << endl;
   printIndex();
