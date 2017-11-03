@@ -71,7 +71,11 @@ void scan_dir(const char *path) {
   }
 }
 
-bool cmp(SS a, SS b) { return a.word < b.word; }
+bool cmp(SS a, SS b) {
+  if (a.word == b.word)
+    return a.count > b.count;
+  return a.word < b.word;
+}
 
 void printIndex() {
   ofstream outfile;
