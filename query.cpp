@@ -24,10 +24,11 @@ vector<int> wordStore;
 map<string, int> wordId;
 int _wordCount;
 void preQuery() {
+  string S;
+  cin >> S;
   wordStore.clear();
   ifstream infile;
   infile.open("/home/alisa/Documents/index/index.dat");
-  // printf("OK\n");
   int fileCount;
   infile >> fileCount;
   for (int i = 1; i <= fileCount; i++) {
@@ -43,48 +44,24 @@ void preQuery() {
     wordStore.push_back(count);
   }
   for (int i = 1; i <= wordCount; i++) {
-    string S;
-    infile >> S;
-    wordId[S] = ++_wordCount;
-    // cout << S << endl;
-    for (int j = 1; j <= wordStore[i - 1]; j++) {
-      int fileId, wordSum;
-      infile >> fileId >> wordSum;
-      index1.push_back(SS{S, fileId, wordSum});
+    string _S;
+    infile >> _S;
+    if (S == _S) {
+      for (int j = 1; j <= wordStore[i - 1]; j++) {
+        int fileId, wordSum;
+        infile >> fileId >> wordSum;
+        cout << fileStore[fileId - 1] << " " << wordSum << endl;
+      }
+      return;
+    } else {
+      for (int j = 1; j <= wordStore[i - 1]; j++) {
+        int fileId, wordSum;
+        infile >> fileId >> wordSum;
+      }
     }
   }
+  cout << "Are you kidding?I can't find the word";
   infile.close();
 }
 
-int findAddressL(string S, int L, int R) {
-  while (L < R) {
-    int mid = (L + R) >> 1;
-    // cout << index1[mid].word << endl;
-    if (index1[mid].word < S)
-      L = mid + 1;
-    else
-      R = mid;
-  }
-  if (index1[L].word == S)
-    return L;
-  else
-    return -1;
-}
-
-void query() {
-  string S;
-  cin >> S;
-  int L = findAddressL(S, 0, index1.size() - 1);
-  if (L == -1) {
-    cout << "Are you kidding?";
-    return;
-  }
-  for (int i = L; i <= L + wordStore[wordId[S] - 1] - 1; i++) {
-    cout << fileStore[index1[i].fileNum - 1] << " " << index1[i].count << endl;
-  }
-}
-
-int main() {
-  preQuery();
-  query();
-}
+int main() { preQuery(); }
