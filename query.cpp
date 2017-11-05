@@ -18,15 +18,12 @@ struct SS {
   int fileNum;
   int count;
 };
-vector<string> fileStore;
-vector<SS> index1;
-vector<int> wordStore;
-map<string, int> wordId;
-int _wordCount;
-void preQuery() {
+
+int main() {
+  vector<string> fileStore;
+  bool flag = 0;
   string S;
   cin >> S;
-  wordStore.clear();
   ifstream infile;
   infile.open("/home/alisa/Documents/index/index.dat");
   int fileCount;
@@ -38,30 +35,21 @@ void preQuery() {
   }
   int wordCount;
   infile >> wordCount;
-  for (int i = 1; i <= wordCount; i++) {
-    int count;
-    infile >> count;
-    wordStore.push_back(count);
-  }
+  int fileId, wordSum;
   for (int i = 1; i <= wordCount; i++) {
     string _S;
     infile >> _S;
     if (S == _S) {
-      for (int j = 1; j <= wordStore[i - 1]; j++) {
-        int fileId, wordSum;
-        infile >> fileId >> wordSum;
-        cout << fileStore[fileId - 1] << " " << wordSum << endl;
-      }
-      return;
+      flag = 1;
+      infile >> fileId >> wordSum;
+      cout << fileStore[fileId - 1] << " " << wordSum << endl;
     } else {
-      for (int j = 1; j <= wordStore[i - 1]; j++) {
-        int fileId, wordSum;
-        infile >> fileId >> wordSum;
-      }
+      /*if (_S > S)
+        break;*/
+      infile >> fileId >> wordSum;
     }
   }
-  cout << "Are you kidding?I can't find the word";
+  if (!flag)
+    cout << "Are you kidding?I can't find the word";
   infile.close();
 }
-
-int main() { preQuery(); }

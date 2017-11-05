@@ -19,14 +19,10 @@ struct SS {
   int fileNum;
   int count;
 };
-vector<SS> sum;
-vector<string> oppoMap;
-vector<string> allFile;     // 每个单词在每个文件里的数量
-map<string, int> fileStore; //储存文件编号
-map<string, int> wordStore; //确定单词是否被读以及赋予编号
-map<int, int> sumInAFile;
-int wordCount, fileCount; //单词总数，文件总数
-void scan_file(const char *fileName) {
+void scan_file(const char *fileName, vector<SS> &sum, vector<string> &oppoMap,
+               vector<string> &allFile, map<string, int> &fileStore,
+               map<string, int> &wordStore, map<int, int> &sumInAFile,
+               int &fileCount, int &wordCount) {
   fileCount++;
   sumInAFile.clear();
   wordStore.clear();
@@ -44,14 +40,16 @@ void scan_file(const char *fileName) {
       oppoMap.push_back(S);
     }
     sumInAFile[wordStore[S]]++;
-    // sum.push_back(SS{S, fileCount, sumInAFile[wordStore[S]]});
   }
   for (int i = 0; i < wordCount; i++)
     sum.push_back(SS{oppoMap[i], fileCount, sumInAFile[wordStore[oppoMap[i]]]});
   infile.close();
 }
 
-void scan_dir(const char *path) {
+void scan_dir(const char *path, vector<SS> &sum, vector<string> &oppoMap,
+              vector<string> &allFile, map<string, int> &fileStore,
+              map<string, int> &wordStore, map<int, int> &sumInAFile,
+              int &fileCount, int &wordCount) {
   struct dirent *ent = NULL;
   DIR *pDir;
   pDir = opendir(path);
@@ -62,61 +60,61 @@ void scan_dir(const char *path) {
     string _dirName(ent->d_name);
     string _fullPath = _path + "/" + _dirName;
     if (ent->d_type == 8) {
-      scan_file(_fullPath.c_str());
+      scan_file(_fullPath.c_str(), sum, oppoMap, allFile, fileStore, wordStore,
+                sumInAFile, wordCount, fileCount);
     } else {
       if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
         continue;
-      scan_dir(_fullPath.c_str());
+      scan_dir(_fullPath.c_str(), sum, oppoMap, allFile, fileStore, wordStore,
+               sumInAFile, wordCount, fileCount);
     }
   }
 }
 
-bool cmp(SS a, SS b) {
+bool cmp(SS a, SS b) { return a.count > b.count; }
+
+/*bool cmp(SS a, SS b) {
   if (a.word == b.word)
     return a.count > b.count;
   return a.word < b.word;
-}
+}*/
 
-void printIndex() {
+void printIndex(vector<SS> &sum, vector<string> &oppoMap,
+                vector<string> &allFile, map<string, int> &fileStore,
+                map<string, int> &wordStore, map<int, int> &sumInAFile,
+                int &wordCount) {
   ofstream outfile;
   outfile.open("index.dat");
-  wordStore.clear();
-  sumInAFile.clear();
-  wordCount = 0;
-  outfile << fileCount << endl;
+  outfile << allFile.size() << endl;
   for (int i = 0; i < allFile.size(); i++)
     outfile << allFile[i] << endl;
   sort(sum.begin(), sum.end(), cmp);
-  for (int i = 0; i < sum.size(); i++) {
-    if (!wordStore[sum[i].word]) {
-      wordCount++;
-      wordStore[sum[i].word] = 1;
-    }
-    sumInAFile[wordCount]++;
-  }
-  outfile << wordCount << endl;
-  for (int i = 1; i <= wordCount; i++)
-    outfile << sumInAFile[i] << endl;
-  // outfile << " ";
-  wordStore.clear();
-  for (int i = 0; i < sum.size(); i++) {
-    if (!wordStore[sum[i].word]) {
-      outfile << endl;
-      wordStore[sum[i].word] = 1;
-      outfile << sum[i].word << endl;
-    }
-    outfile << sum[i].fileNum << endl << sum[i].count << endl;
-  }
+  int tmp = sum.size();
+  outfile << tmp << endl;
+  for (int i = 0; i < tmp; i++)
+    outfile << sum[i].word << " " << sum[i].fileNum << " " << sum[i].count
+            << endl;
   outfile.close();
 }
 
 int main() {
   string path;
+  vector<SS> sum;
+  vector<string> oppoMap;
+  vector<string> allFile;     // 每个单词在每个文件里的数量
+  map<string, int> fileStore; //储存文件编号
+  map<string, int> wordStore; //确定单词是否被读以及赋予编号
+  map<int, int> sumInAFile;
+  int wordCount = 0, fileCount = 0; //单词总数，文件总数
   cin >> path;
   // cout << path;
-  scan_dir(path.c_str());
+  scan_dir(path.c_str(), sum, oppoMap, allFile, fileStore, wordStore,
+           sumInAFile, wordCount, fileCount);
   // scan_file("/home/alisa/Documents/code/");
+  /*/cout << "done" << endl;
+  cout << "Totle Time : " << (double)clock() / CLOCKS_PER_SEC << "s" << endl;*/
+  printIndex(sum, oppoMap, allFile, fileStore, wordStore, sumInAFile,
+             wordCount);
   cout << "done" << endl;
   cout << "Totle Time : " << (double)clock() / CLOCKS_PER_SEC << "s" << endl;
-  printIndex();
 }
