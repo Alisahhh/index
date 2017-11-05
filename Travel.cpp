@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <omp.h>
 #include <queue>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -37,11 +38,14 @@ void scan_file(const char *fileName, vector<SS> &sum, vector<string> &oppoMap,
   while (infile >> S) {
     if (!wordStore[S]) {
       wordStore[S] = ++wordCount;
+      //#pragma omp atomic
       oppoMap.push_back(S);
     }
     sumInAFile[wordStore[S]]++;
   }
+
   for (int i = 0; i < wordCount; i++)
+    //#pragma omp atomic
     sum.push_back(SS{oppoMap[i], fileCount, sumInAFile[wordStore[oppoMap[i]]]});
   infile.close();
 }
@@ -50,6 +54,7 @@ void scan_dir(const char *path, vector<SS> &sum, vector<string> &oppoMap,
               vector<string> &allFile, map<string, int> &fileStore,
               map<string, int> &wordStore, map<int, int> &sumInAFile,
               int &fileCount, int &wordCount) {
+  // thread p[4];
   struct dirent *ent = NULL;
   DIR *pDir;
   pDir = opendir(path);
@@ -79,10 +84,7 @@ bool cmp(SS a, SS b) { return a.count > b.count; }
   return a.word < b.word;
 }*/
 
-void printIndex(vector<SS> &sum, vector<string> &oppoMap,
-                vector<string> &allFile, map<string, int> &fileStore,
-                map<string, int> &wordStore, map<int, int> &sumInAFile,
-                int &wordCount) {
+void printIndex(vector<SS> sum, vector<string> allFile) {
   ofstream outfile;
   outfile.open("index.dat");
   outfile << allFile.size() << endl;
@@ -113,8 +115,7 @@ int main() {
   // scan_file("/home/alisa/Documents/code/");
   /*/cout << "done" << endl;
   cout << "Totle Time : " << (double)clock() / CLOCKS_PER_SEC << "s" << endl;*/
-  printIndex(sum, oppoMap, allFile, fileStore, wordStore, sumInAFile,
-             wordCount);
+  printIndex(sum, allFile);
   cout << "done" << endl;
   cout << "Totle Time : " << (double)clock() / CLOCKS_PER_SEC << "s" << endl;
 }
