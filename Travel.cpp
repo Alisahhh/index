@@ -7,7 +7,6 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <omp.h>
 #include <queue>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -86,7 +85,7 @@ bool cmp(SS a, SS b) { return a.count > b.count; }
 
 void printIndex(vector<SS> sum, vector<string> allFile) {
   ofstream outfile;
-  outfile.open("index.dat");
+  outfile.open("/home/alisa/Documents/index/index.dat");
   outfile << allFile.size() << endl;
   for (int i = 0; i < allFile.size(); i++)
     outfile << allFile[i] << endl;
@@ -108,6 +107,7 @@ int main() {
   map<string, int> wordStore; //确定单词是否被读以及赋予编号
   map<int, int> sumInAFile;
   int wordCount = 0, fileCount = 0; //单词总数，文件总数
+  cout << "Please enter the full path:";
   cin >> path;
   // cout << path;
   scan_dir(path.c_str(), sum, oppoMap, allFile, fileStore, wordStore,
